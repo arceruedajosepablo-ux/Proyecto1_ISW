@@ -1,0 +1,40 @@
+# Archivos y carpetas generados por el sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración local
+scripts/smtp_config.php
+config.php
+
+# Archivos temporales y de desarrollo
+*.log
+*.cache
+*.tmp
+
+# Carpetas que no necesitan versionarse
+/vendor/
+/node_modules/
+/emails/
+/uploads/*
+!uploads/.gitkeep
+
+# Archivos de entorno y configuración personal
+.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# Archivos de respaldo
+*.bak
+*.swp
+*~
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Archivos de caché de PHP
+*.php_cs.cache
