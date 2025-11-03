@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./CSS/styleAddRide.css">
+    <title>Dashboard de Rides</title>
+
+</head>
+
+
+<body>
+
+    <!-- Contenedor del modal cargado mediante iframe -->
+    <iframe id="modalFrame" src="./modal.html" style="display: none; width: 100%; height: 100%; border: none; position:fixed"></iframe>
+    <div class="container">
+
+
+        <header>
+            <img src="./imagenes/logo.png" alt="Logo" class="logo">
+            <div class="user-welcome">
+                <span>Bienvenido, Licu</span>
+                <button id="logoutButton" class="logout-btn">cerrar sesión</button>
+            </div>
+            
+        </header>
+
+        <!-- Barra de Navegación estilo pestañas -->
+        <nav class="navbar">
+            <ul>
+                <li><a href="./dashboard.html" >Dashboard</a></li>
+                <li><a href="./addRide.html" class="active">Rides</a></li>
+                <li><a href="#">Settings</a></li>
+            </ul>
+        </nav>
+
+        <!-- Indicación de la sección actual -->
+        <div class="breadcrumb">
+            <a href="./dashboard.html">Dashboard ></a> <a href="./addRide.html">Rides></a> <span>Nuevo</span>
+        </div>
+        <meta http-equiv="refresh" content="0; url=./addRide.php" />
+        <p>Redirigiendo a la versión protegida de la página. Si no eres redirigido <a href="./addRide.php">haz clic aquí</a>.</p>
+
+        <script>
+            // Cargar vehículos del chofer para poblar el select
+            async function loadVehicles() {
+                try {
+                    const res = await fetch('./api/vehicles.php');
+                    if (!res.ok) throw new Error('No autorizado o error');
+                    const data = await res.json();
+                    const sel = document.getElementById('vehicle_id');
+                    sel.innerHTML = '';
+                    if (data.length === 0) {
+                        sel.innerHTML = '<option value="">No tienes vehículos registrados</option>';
+                        return;
+                    }
+                    data.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v.id;
+                        opt.textContent = v.marca + ' ' + v.modelo + ' (' + v.anio + ') - ' + v.placa;
+                        sel.appendChild(opt);
+                    });
+                } catch (err) {
+                    console.error(err);
+                    const sel = document.getElementById('vehicle_id');
+                    sel.innerHTML = '<option value="">Error cargando vehículos</option>';
+                }
+            }
+            document.addEventListener('DOMContentLoaded', loadVehicles);
+            // Submit form via fetch to handle response and redirect
+            document.getElementById('addRideForm').addEventListener('submit', async function(e){
+                e.preventDefault();
+                const form = e.target;
+                const data = new FormData(form);
+                try {
+                    const res = await fetch(form.action, { method: 'POST', body: data });
+                    const text = await res.text();
+                    alert(text);
+                    if (res.ok) window.location.href = './dashboard.php';
+                } catch(err) { console.error(err); alert('Error creando ride'); }
+            });
+        </script>
+
+       
+    </div>
+
+    <script src="./JS/scripts.js"></script>
+</body>
+
+</html>

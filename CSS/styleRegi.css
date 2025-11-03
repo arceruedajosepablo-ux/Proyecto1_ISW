@@ -1,0 +1,132 @@
+/* Estilos básicos */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+html {
+    font-size: 16px; /* Tamaño base de fuente en rem */
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+    /*background-color: #f5f5f5;*/
+    background-color: #e0f7fa; /* Color suave */
+}
+
+.container {
+    width: 100%;
+    max-width: 25rem;
+    padding: 1.25rem;
+    overflow: hidden;
+}
+
+.register-form {
+    background-color: #fff;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
+}
+
+.register-form h2 {
+    text-align: center;
+    margin-bottom: 1.25rem;
+    font-size: 1.5rem;
+    color: #333;
+    word-wrap: break-word; /* Asegura que el texto se ajuste en pantallas pequeñas */
+}
+
+.register-form label {
+    font-size: 0.875rem;
+    color: #333;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.register-form input[type="text"],
+.register-form input[type="tel"],
+.register-form input[type="email"],
+.register-form input[type="password"],
+.register-form select {
+    width: 100%;
+    padding: 0.625rem;
+    margin-bottom: 1rem;
+    border: 0.0625rem solid #ddd;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+}
+
+.register-form .cedula-section {
+    display: flex;
+    gap: 0.3125rem;
+}
+
+.register-form button {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.register-form button:hover {
+    background-color: #0056b3;
+}
+
+.back-to-login {
+    margin-top: 0.9375rem;
+    text-align: center;
+}
+
+.back-to-login .button {
+    display: inline-block;
+    padding: 0.625rem 1.25rem;
+    font-size: 1rem;
+    color: #007bff;
+    text-decoration: none;
+    border: 0.0625rem solid #007bff;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.back-to-login .button:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Media Queries para dispositivos móviles */
+@media (max-width: 31.25rem) {
+    .container {
+        padding: 0.625rem;
+    }
+
+    .register-form {
+        padding: 0.9375rem;
+    }
+
+    .register-form h2 {
+        font-size: 1.25rem;
+        margin-bottom: 0.9375rem;
+    }
+
+    .register-form label,
+    .register-form input,
+    .register-form button,
+    .back-to-login .button {
+        font-size: 0.875rem;
+    }
+
+    .back-to-login .button {
+        padding: 0.5rem 0.9375rem;
+    }
+}

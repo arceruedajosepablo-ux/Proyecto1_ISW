@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Licu Rides</title>
+    <link rel="stylesheet" href="/CSS/styleIndex.css">
+    <link rel="icon" href="/imagenes/icon.png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="/imagenes/logo.png" alt="Licu Rides Logo" class="logo">
+            <h1>Bienvenidos a LicuRides.com</h1>
+            <div id="userArea">
+                <a href="/login.html" class="login-button">Inicio de sesión</a>
+            </div>
+        </header>
+        
+        <!-- Panel privado (visible al iniciar sesión) -->
+        <div id="userPanel" class="user-panel" style="display:none;">
+            <!-- Contenido cargado dinámicamente: Mis Rides (driver) o Mis Reservas (passenger) -->
+        </div>
+        
+        <div class="search-section">
+            <h2>Búsqueda de Rides</h2>
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="origen">Origen</label>
+                    <input type="text" id="origen" placeholder="¿Desde dónde sales?">
+                </div>
+                <div class="form-group">
+                    <label for="destino">Destino</label>
+                    <input type="text" id="destino" placeholder="¿A dónde vas?">
+                </div>
+                <button type="button" id="searchBtn">Buscar Rides</button>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div class="results-header">
+                <h3>Rides Disponibles</h3>
+                <div class="sort-controls">
+                    Ordenar por: 
+                    <select id="sortBy">
+                        <option value="fecha">Fecha</option>
+                        <option value="origen">Origen</option>
+                        <option value="destino">Destino</option>
+                    </select>
+                    <button id="sortOrder" data-order="asc" title="Cambiar orden">
+                        ↑
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ride</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Vehículo</th>
+                            <th>Fecha y Hora</th>
+                            <th>Espacios</th>
+                            <th>Costo</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ridesBody">
+                        <tr><td colspan="8">Cargando rides...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Modal para detalles y reserva -->
+            <div id="rideModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Detalles del Ride</h2>
+                    <div id="rideDetails"></div>
+                    <div class="modal-actions">
+                        <button id="reserveBtn" style="display: none;">Reservar Espacio</button>
+                        <a href="/login.html" id="loginPrompt" style="display: none;">Inicia sesión para reservar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Variables globales para el estado
+            let currentRides = [];
+            let sortField = 'fecha';
+            let sortOrder = 'asc';
+
+            // Función para cargar rides con filtros y ordenamiento
+            async function loadPublicRides(filters = {}) {
+                try {
+                    const queryParams = new URLSearchParams({
+                        public: '1',
+                        sort_by: sortField,
+                        order: sortOrder,
+                        ...filters
+                    });
+
+                    const res = await fetch(`/api/rides.php?${queryParams}`);
+                    if (!res.ok) throw new Error('Error cargando rides');
+                    
+                    const response = await res.json();
+                    if (!response.success) throw new Error(response.error || 'Error desconocido');
+                    
+                    currentRides = response.rides; // Guardar para reordenar sin hacer nueva petición
+                    
+                    // Filtrar rides pasados
+                    const now = new Date();
+                    currentRides = currentRides.filter(ride => {
+                        const rideDate = new Date(ride.fecha + ' ' + ride.hora);
+                        return rideDate >= now;
+                    });
+
+                    // Ordenar localmente si es necesario
+                    if (sortField && sortOrder) {
+                        currentRides.sort((a, b) => {
+                            let aVal, bVal;
+                            
+                            switch(sortField) {
+                                case 'fecha':
+                                    aVal = new Date(a.fecha + ' ' + a.hora);
+                                    bVal = new Date(b.fecha + ' ' + b.hora);
+                                    break;
+                                case 'origen':
+                                    aVal = a.origen.toLowerCase();
+                                    bVal = b.origen.toLowerCase();
+                                    break;
+                                case 'destino':
+                                    aVal = a.destino.toLowerCase();
+                                    bVal = b.destino.toLowerCase();
+                                    break;
+                                default:
+                                    return 0;
+                            }
+                            
+                            if (sortOrder === 'asc') {
+                                return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                            } else {
+                                return bVal < aVal ? -1 : bVal > aVal ? 1 : 0;
+                            }
+                        });
+                    }
+                    
+                    displayRides(currentRides);
+                } catch (err) {
+                    console.error(err);
+                    document.getElementById('ridesBody').innerHTML = 
+                        '<tr><td colspan="8">Error cargando rides. Por favor intenta más tarde.</td></tr>';
+                }
+            }
+
+            // Función para mostrar los rides en la tabla
+            function displayRides(rides) {
+                const tbody = document.getElementById('ridesBody');
+                tbody.innerHTML = '';
+                
+                if (!rides || rides.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8">No hay rides disponibles con los criterios seleccionados</td></tr>';
+                    return;
+                }
+
+                rides.forEach(r => {
+                    const tr = document.createElement('tr');
+                    const fecha = new Date(r.fecha + ' ' + r.hora);
+                    const espaciosDisponibles = (typeof r.espacios_disponibles !== 'undefined') ? parseInt(r.espacios_disponibles, 10) : (r.espacios - (r.espacios_reservados || 0));
+                    const vehicleInfo = `
+                        <div class="vehicle-info">
+                            <div class="vehicle-main">${escapeHtml(r.marca)} ${escapeHtml(r.modelo)} (${escapeHtml(r.anio)})</div>
+                            <div class="vehicle-details">
+                                ${r.tipo_vehiculo ? `<span class="vehicle-type">${escapeHtml(r.tipo_vehiculo)}</span>` : ''}
+                                ${r.color ? `<span class="vehicle-color">${escapeHtml(r.color)}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    tr.innerHTML = `
+                        <td>${escapeHtml(r.nombre)}</td>
+                        <td>${escapeHtml(r.origen)}</td>
+                        <td>${escapeHtml(r.destino)}</td>
+                        <td>${vehicleInfo}</td>
+                        <td>${fecha.toLocaleString()}</td>
+                        <td>${espaciosDisponibles} de ${escapeHtml(r.espacios)}</td>
+                        <td>₡${parseFloat(r.costo).toLocaleString('es-CR')}</td>
+                        <td><button onclick="showRideDetails(${r.id})" class="view-btn">Ver detalles</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Función para mostrar detalles del ride
+            async function showRideDetails(rideId) {
+    const ride = currentRides.find(r => r.id == rideId);
+    if (!ride) return;
+
+    const modal = document.getElementById('rideModal');
+    const details = document.getElementById('rideDetails');
+    const reserveBtn = document.getElementById('reserveBtn');
+    const loginPrompt = document.getElementById('loginPrompt');
+
+    const espaciosDisponibles = (typeof ride.espacios_disponibles !== 'undefined') ? parseInt(ride.espacios_disponibles, 10) : (ride.espacios - (ride.espacios_reservados || 0));
+    
+    details.innerHTML = `
+        <p><strong>Ride:</strong> ${escapeHtml(ride.nombre)}</p>
+        <p><strong>Origen:</strong> ${escapeHtml(ride.origen)}</p>
+        <p><strong>Destino:</strong> ${escapeHtml(ride.destino)}</p>
+        <p><strong>Fecha y Hora:</strong> ${new Date(ride.fecha + ' ' + ride.hora).toLocaleString()}</p>
+        <p><strong>Vehículo:</strong> ${escapeHtml(ride.marca)} ${escapeHtml(ride.modelo)} (${escapeHtml(ride.anio)})</p>
+        <p><strong>Espacios disponibles:</strong> ${espaciosDisponibles} de ${escapeHtml(ride.espacios)}</p>
+        <p><strong>Costo por espacio:</strong> ₡${parseFloat(ride.costo).toLocaleString('es-CR')}</p>
+    `;
+
+    // Verificar si el usuario está logueado y es pasajero
+    try {
+        const userResponse = await fetch('/api/auth.php');
+        if (!userResponse.ok) throw new Error('Error verificando sesión');
+        
+        const userData = await userResponse.json();
+        
+        if (userData.logged_in && userData.role === 'passenger') {
+            if (espaciosDisponibles > 0) {
+                reserveBtn.style.display = 'block';
+                loginPrompt.style.display = 'none';
+                reserveBtn.onclick = () => reserveRide(rideId);
+            } else {
+                reserveBtn.style.display = 'none';
+                loginPrompt.style.display = 'none';
+                details.innerHTML += '<p class="error-message">Lo sentimos, no hay espacios disponibles.</p>';
+            }
+        } else {
+            reserveBtn.style.display = 'none';
+            loginPrompt.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        reserveBtn.style.display = 'none';
+        loginPrompt.style.display = 'block';
+    }
+
+    modal.style.display = 'block';
+}
+
+            // Función para reservar un ride
+            // --- Nuevas funciones: detección de sesión y carga de panel privado ---
+            async function checkAuthAndUpdateUI() {
+                try {
+                    const res = await fetch('/api/auth.php');
+                    if (!res.ok) throw new Error('No se pudo verificar sesión');
+                    const user = await res.json();
+                    const userArea = document.getElementById('userArea');
+                    const userPanel = document.getElementById('userPanel');
+
+                    if (user.logged_in) {
+                        userArea.innerHTML = `
+                            <span class="welcome">Hola, ${escapeHtml(user.nombre || user.user_id || 'Usuario')}</span>
+                            <a href="/dashboard.php" class="login-button">Dashboard</a>
+                            <a href="/api/logout.php" class="login-button">Cerrar sesión</a>
+                        `;
+                        userPanel.style.display = 'block';
+                        // Si es driver o admin, añadir botón visible para acceder a solicitudes
+                        if (user.role === 'driver' || user.role === 'admin') {
+                            // Mostrar rides y solicitudes
+                            //await loadUserRides();
+                            await loadDriverReservations();
+                        } else if (user.role === 'passenger') {
+                            // remover botón de solicitudes si existe para pasajeros
+                            const existing = document.getElementById('requestsBtn');
+                            if (existing) existing.remove();
+                            await loadUserReservations();
+                        }
+                    } else {
+                        userArea.innerHTML = `<a href="/login.html" class="login-button">Inicio de sesión</a>`;
+                        userPanel.style.display = 'none';
+                    }
+                } catch (err) {
+                    console.error('Auth check failed', err);
+                }
+            }
+
+            async function loadUserRides() {
+                try {
+                    const res = await fetch('/api/rides.php');
+                    if (!res.ok) throw new Error('No autorizado');
+                    const data = await res.json();
+                    // backend may return array directly or wrapped; normalize
+                    const rides = Array.isArray(data) ? data : (data.rides || []);
+                    renderUserRides(rides);
+                } catch (err) {
+                    console.error('Error cargando rides del usuario', err);
+                    document.getElementById('userPanel').innerHTML = '<p>Error cargando tus rides.</p>';
+                }
+            }
+
+            function renderUserRides(rides) {
+                const panel = document.getElementById('userPanel');
+                // Always render a rides section and a requests section (requestsSection will be filled by driver reservations renderer)
+                let body = '<ul class="user-list">';
+                if (!rides || rides.length === 0) {
+                    body = '<p>No tienes rides creados.</p>';
+                } else {
+                    rides.forEach(r => {
+                        const fecha = new Date(r.fecha + ' ' + r.hora);
+                        body += `<li><strong>${escapeHtml(r.nombre)}</strong> — ${escapeHtml(r.origen)} → ${escapeHtml(r.destino)} (${fecha.toLocaleString()}) ` +
+                            `<a href="/addRide.php?id=${r.id}">Editar</a> ` +
+                            `<button class="action-btn danger" data-id="${r.id}" onclick="deleteRide(${r.id}, this)">Eliminar</button></li>`;
+                    });
+                    body += '</ul>';
+                }
+
+                panel.innerHTML = `
+                    <div class="panel-header">
+                        <h4>Mis Rides</h4>
+                        <button class="toggle-panel" onclick="toggleUserPanel()" aria-expanded="true">−</button>
+                    </div>
+                    <div id="ridesSection" class="panel-body">${body}</div>
+                    <div id="requestsSection"></div>`;
+            }
+
+            // Cargar solicitudes de reservas para el driver
+            async function loadDriverReservations() {
+                try {
+                    const res = await fetch('/api/reservations.php');
+                    if (!res.ok) throw new Error('No autorizado');
+                    const data = await res.json();
+                    const reservations = data.reservations || [];
+                    renderDriverReservations(reservations);
+                } catch (err) {
+                    console.error('Error cargando solicitudes', err);
+                    // si hay rides ya renderizados, no sobreescribir todo el panel;
+                    const panel = document.getElementById('userPanel');
+                    panel.innerHTML += '<p class="muted">Error cargando solicitudes de reserva.</p>';
+                }
+            }
+
+            function renderDriverReservations(list) {
+                const panel = document.getElementById('userPanel');
+                // Ensure requestsSection exists
+                let requestsSection = document.getElementById('requestsSection');
+                if (!requestsSection) {
+                    requestsSection = document.createElement('div');
+                    requestsSection.id = 'requestsSection';
+                    panel.appendChild(requestsSection);
+                }
+
+                const header = `<div class="panel-header"><h4>Solicitudes de Reserva</h4><button class="toggle-panel" onclick="toggleUserPanel()" aria-expanded="true">−</button></div>`;
+
+                if (!list || list.length === 0) {
+                    requestsSection.innerHTML = header + `<div class="panel-body"><p>No hay solicitudes de reserva pendientes.</p></div>`;
+                    return;
+                }
+
+                let body = '<ul class="user-list">';
+                list.forEach(r => {
+                    const fecha = new Date(r.fecha + ' ' + r.hora);
+                    const passengerName = (r.passenger_nombre || r.passenger_nombre) + ' ' + (r.passenger_apellido || '');
+                    body += `<li data-res-id="${r.id}">
+                        <strong>${escapeHtml(r.ride_name)}</strong> — ${escapeHtml(r.origen)} → ${escapeHtml(r.destino)} (${fecha.toLocaleString()})<br>
+                        <span class="muted">Solicitante: ${escapeHtml(passengerName)} &lt;${escapeHtml(r.passenger_email)}&gt;</span>
+                        <div style="margin-top:.5rem">
+                            <button class="action-btn" onclick="respondReservation(${r.id}, this, true)">Aceptar</button>
+                            <button class="action-btn danger" onclick="respondReservation(${r.id}, this, false)">Rechazar</button>
+                        </div>
+                    </li>`;
+                });
+                body += '</ul>';
+
+                requestsSection.innerHTML = header + `<div class="panel-body">${body}</div>`;
+            }
+
+            // Accept / Reject reservation
+            async function respondReservation(reservationId, btn, accept = true) {
+                if (!confirm(accept ? 'Aceptar esta reserva?' : 'Rechazar esta reserva?')) return;
+                try {
+                    btn.disabled = true;
+                    const payload = new URLSearchParams();
+                    payload.append('action', accept ? 'accept' : 'reject');
+                    payload.append('id', reservationId);
+                    const res = await fetch('/api/reservations.php', { method: 'POST', body: payload });
+                    const data = await res.json();
+                    
+                    if (!data.success) {
+                        throw new Error(data.error || 'Error en la petición');
+                    }
+
+                    // Mostrar mensaje de éxito
+                    alert(data.message);
+
+                    // Actualizar panel de usuario y lista pública (remover elemento y recargar datos)
+                    // quitar del DOM la reserva respondida
+                    try {
+                        const li = btn.closest('li');
+                        if (li && li.dataset && li.dataset.resId == reservationId) {
+                            li.remove();
+                        }
+                    } catch (e) { /* ignore DOM removal errors */ }
+
+                    // refrescar datos públicos y recargar solicitudes
+                    await loadPublicRides();
+                    await loadDriverReservations();
+                    // opcional: también actualizar el panel superior
+                    try { checkAuthAndUpdateUI(); } catch(e){}
+                    // informar al usuario
+                    alert('Operación realizada');
+                } catch (err) {
+                    console.error(err);
+                    alert('Error al procesar la solicitud');
+                } finally {
+                    try { btn.disabled = false; } catch(e){}
+                }
+            }
+
+            // Mostrar panel y cargar solicitudes (utilidad para el botón 'Solicitudes' en header)
+            function showRequests() {
+                const panel = document.getElementById('userPanel');
+                if (!panel) return;
+                panel.style.display = 'block';
+                panel.classList.remove('collapsed');
+                // Cargar solicitudes y desplazar
+                loadDriverReservations().then(() => {
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }).catch(() => {
+                    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            }
+
+            async function loadUserReservations() {
+                try {
+                    const res = await fetch('/api/reservations.php');
+                    if (!res.ok) throw new Error('No autorizado');
+                    const data = await res.json();
+                    const reservations = data.reservations || [];
+                    renderUserReservations(reservations);
+                } catch (err) {
+                    console.error('Error cargando reservaciones', err);
+                    document.getElementById('userPanel').innerHTML = '<p>Error cargando tus reservaciones.</p>';
+                }
+            }
+
+            function renderUserReservations(list) {
+                const panel = document.getElementById('userPanel');
+                if (!list || list.length === 0) {
+                    panel.innerHTML = `
+                        <div class="panel-header">
+                            <h4>Mis Reservas</h4>
+                            <button class="toggle-panel" onclick="toggleUserPanel()" aria-expanded="true">−</button>
+                        </div>
+                        <div class="panel-body">
+                            <p>No tienes reservaciones.</p>
+                        </div>`;
+                    return;
+                }
+                let body = '<ul class="user-list">';
+                list.forEach(r => {
+                    const fecha = new Date(r.fecha + ' ' + r.hora);
+                    body += `<li><strong>${escapeHtml(r.ride_name || r.nombre)}</strong> — ${escapeHtml(r.origen)} → ${escapeHtml(r.destino)} (${fecha.toLocaleString()}) ` +
+                        `<span class="muted">Estado: ${escapeHtml(r.status || r.estado || 'pendiente')}</span> ` +
+                        `<button class="action-btn secondary" data-id="${r.id}" onclick="cancelReservation(${r.id}, this)">Cancelar</button></li>`;
+                });
+                body += '</ul>';
+                panel.innerHTML = `
+                    <div class="panel-header">
+                        <h4>Mis Reservas</h4>
+                        <button class="toggle-panel" onclick="toggleUserPanel()" aria-expanded="true">−</button>
+                    </div>
+                    <div class="panel-body">${body}</div>`;
+            }
+
+            // --- Fin funciones de sesión y panel privado ---
+
+            async function reserveRide(rideId) {
+                try {
+                    const response = await fetch('/api/reservations.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ride_id: rideId,
+                            action: 'reserve'
+                        })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('Reserva solicitada exitosamente');
+                        document.getElementById('rideModal').style.display = 'none';
+                        loadPublicRides(); // Recargar lista
+                        // Actualizar UI de sesión/panel por si cambió algo
+                        try { checkAuthAndUpdateUI(); } catch(e){/*noop*/}
+                    } else {
+                        alert(result.error || 'Error al realizar la reserva');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error de conexión al intentar reservar');
+                }
+            }
+
+            // Eliminar ride (driver)
+            async function deleteRide(rideId, btn) {
+                if (!confirm('¿Confirma que desea eliminar este ride?')) return;
+                try {
+                    btn.disabled = true;
+                    const res = await fetch(`/api/rides.php?id=${rideId}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) {
+                        alert(data.message || 'Ride eliminado');
+                        // refrescar panel y lista pública
+                        checkAuthAndUpdateUI();
+                        loadPublicRides();
+                    } else {
+                        alert(data.error || 'Error al eliminar');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error de conexión al eliminar');
+                } finally {
+                    try { btn.disabled = false; } catch(e){}
+                }
+            }
+
+            // Cancelar reservación (passenger)
+            async function cancelReservation(resId, btn) {
+                if (!confirm('¿Desea cancelar esta reservación?')) return;
+                try {
+                    btn.disabled = true;
+                    const payload = new URLSearchParams();
+                    payload.append('action', 'cancel');
+                    payload.append('id', resId);
+                    const res = await fetch('/api/reservations.php', { method: 'POST', body: payload });
+                    const text = await res.text();
+                    // Some endpoints return plain text; try parse JSON
+                    let data;
+                    try { data = JSON.parse(text); } catch(e) { data = { success: text.toLowerCase().includes('ok') || text.toLowerCase().includes('cancel') } }
+                    if (data.success) {
+                        alert(data.message || 'Reservación cancelada');
+                        checkAuthAndUpdateUI();
+                        loadPublicRides();
+                    } else {
+                        alert(data.error || 'Error al cancelar la reservación');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error de conexión al cancelar');
+                } finally {
+                    try { btn.disabled = false; } catch(e){}
+                }
+            }
+
+            // Toggle del panel de usuario (colapsable)
+            function toggleUserPanel() {
+                const panel = document.getElementById('userPanel');
+                if (!panel) return;
+                const isCollapsed = panel.classList.toggle('collapsed');
+                const btn = panel.querySelector('.toggle-panel');
+                if (btn) {
+                    btn.setAttribute('aria-expanded', String(!isCollapsed));
+                    btn.textContent = isCollapsed ? '+' : '−';
+                }
+            }
+
+            // Funciones de utilidad
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, c => (
+                    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]
+                ));
+            }
+
+            // Event Listeners
+            document.addEventListener('DOMContentLoaded', () => {
+                // Verificar sesión y actualizar UI antes de cargar rides
+                try { checkAuthAndUpdateUI(); } catch(e) { /* noop */ }
+                // Cargar rides iniciales
+                loadPublicRides();
+
+                // Búsqueda
+                document.getElementById('searchBtn').addEventListener('click', () => {
+                    const origen = document.getElementById('origen').value.trim();
+                    const destino = document.getElementById('destino').value.trim();
+                    loadPublicRides({ origen, destino });
+                });
+
+                // Ordenamiento
+                document.getElementById('sortBy').addEventListener('change', (e) => {
+                    sortField = e.target.value;
+                    loadPublicRides();
+                });
+
+                document.getElementById('sortOrder').addEventListener('click', (e) => {
+                    const btn = e.target;
+                    sortOrder = btn.dataset.order === 'asc' ? 'desc' : 'asc';
+                    btn.dataset.order = sortOrder;
+                    btn.textContent = sortOrder === 'asc' ? '↑' : '↓';
+                    loadPublicRides();
+                });
+
+                // Modal
+                const modal = document.getElementById('rideModal');
+                document.querySelector('.close').onclick = () => {
+                    modal.style.display = 'none';
+                };
+                window.onclick = (e) => {
+                    if (e.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                };
+            });
+        </script>
+    </div>
+</body>
+</html>

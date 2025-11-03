@@ -1,0 +1,197 @@
+/* Estilos básicos */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    background-color: #e0f7fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 50rem;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+/* Encabezado */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.logo {
+    width: 10rem;
+    height: auto;
+}
+
+.user-welcome {
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Barra de Navegación estilo pestañas */
+.navbar {
+    display: flex;
+    margin-bottom: 1rem;
+   /* border-bottom: 0.125rem solid #ddd;*/
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    padding-bottom: 0.5rem;
+    gap: 0.2rem;
+}
+
+.navbar li {
+    display: inline;
+}
+
+.navbar a {
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: #333;
+    background-color: #f5f5f5;
+    border: 0.125rem solid #ddd;
+    font-weight: bold;
+    border-radius: 1rem;
+    margin-bottom: 0.5rem;
+    
+    
+}
+
+.navbar a.active {
+    background-color: #ffffff;
+    color: #333;
+    font-weight: bold;
+    border: 0.125rem solid #ddd;
+    
+}
+
+.navbar a:hover {
+    background-color: #e0e0e0;
+}
+
+/* Indicación de la sección actual */
+.breadcrumb {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+/* Sección de rides */
+.rides-section {
+    margin-top: 1rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rides-section h2 {
+    font-size: 1.25rem;
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+table th, table td {
+    padding: 0.75rem;
+    text-align: left;
+    border: 0.0625rem solid #ddd;
+}
+
+table th {
+    background-color: #f5f5f5;
+}
+
+table a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+table a:hover {
+    text-decoration: underline;
+}
+
+/* Botón para agregar rides */
+.add-button {
+    display: inline-block;
+    padding: 0.1rem;
+    font-size: 1.8rem;
+    color: white;
+    background-color: #28a745;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    line-height: 2.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+.add-button:hover {
+    background-color: #218838;
+}
+
+
+/*botón para cerrar sesión*/
+.logout-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.4rem; /* Espaciado en rem */
+    border-radius: 0.5rem; /* Bordes redondeados */
+    font-size: 1rem; /* Tamaño de fuente */
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Media Queries para dispositivos pequeños */
+@media (max-width: 31.25rem) {
+    .container {
+        padding: 1rem;
+    }
+
+
+    .user-welcome {
+        font-size: 0.875rem;
+    }
+
+    .navbar a {
+        font-size: 0.875rem;
+    }
+
+    table th, table td {
+        font-size: 0.875rem;
+    }
+}

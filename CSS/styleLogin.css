@@ -1,0 +1,85 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e0f7fa; /* Color suave */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background: white;
+    padding: 2rem; /* Espaciado en rem */
+    border-radius: 1rem; /* Bordes redondeados */
+    box-shadow: 0 0.5rem 1.875rem rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 25rem; /* Ancho máximo en rem */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logo {
+    width: 15rem; /* Tamaño del logo en rem */
+    margin-bottom: 1.25rem;
+}
+
+
+.form-group {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.3125rem; /* Margen en rem */
+    font-weight: normal;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.75rem; /* Espaciado en rem */
+    border: 1px solid #ccc;
+    border-radius: 0.5rem; /* Bordes redondeados */
+    transition: border-color 0.2s ease;
+    background-color: #f7f9fc; /* Fondo suave para inputs */
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.75rem; /* Espaciado en rem */
+    border-radius: 0.5rem; /* Bordes redondeados */
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem; /* Tamaño de fuente */
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+p {
+    margin-top: 1rem;
+    font-size: 0.875rem; /* Tamaño de fuente */
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #0056b3;
+}

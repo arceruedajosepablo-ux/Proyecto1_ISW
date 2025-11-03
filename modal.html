@@ -1,0 +1,35 @@
+<!-- modal.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./CSS/styleModal.css">
+</head>
+<body>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Eliminar Ride</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar el ride?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn">Cancelar</button>
+                <button class="aceptar-btn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Seleccionar los elementos de cierre
+        const closeModalElements = document.querySelectorAll('.close, .cancel-btn, .aceptar-btn');
+        closeModalElements.forEach(el => {
+            el.addEventListener('click', () => {
+                window.parent.document.getElementById('modalFrame').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
