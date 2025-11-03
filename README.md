@@ -37,17 +37,3 @@ Ejemplo: notificar reservas pendientes de más de 30 minutos
 ```powershell
 C:\xampp\php\php.exe scripts\notify_pending.php 30
 ```
-
-Implementación actual y siguientes pasos
---------------------------------------
-- Endpoints básicos: registro (`api/register.php`), activación (`api/activate.php`), login (`api/login.php`).
-- Utilidad para guardar correos en `emails/` (`scripts/send_mail.php`).
-- Scripts DB: `db/init.sql` (esquema) y `db/seed.php` (seed admin).
-
-Próximas tareas recomendadas
----------------------------
-- Implementar endpoints CRUD para vehículos (`api/vehicles.php`), rides (`api/rides.php`) y reservas (`api/reservations.php`).
-- Añadir comprobaciones de sesión/rol (includes) y páginas protegidas.
-- Mejorar UI para consumir la API (AJAX) y manejar estados (pending/active/inactive).
-
-Si deseas que continúe implementando los endpoints CRUD y la integración completa con las páginas (`addRide.html`, `dashboard.html`), dime y lo haré en la siguiente iteración.
