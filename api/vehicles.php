@@ -1,15 +1,17 @@
 <?php
+// API para gestionar vehículos - solo conductores y admins pueden usarla
 require_once __DIR__ . '/auth.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = db_connect();
 
-// GET: listar vehículos del usuario (o todos si admin)
+// GET: obtener lista de vehículos del usuario
 if ($method === 'GET') {
     if (isset($_GET['user_id'])) {
+        // Para admins que quieren ver vehículos de otro usuario
         $user_id = (int)$_GET['user_id'];
     } else {
-        // current user
+        // Usuario normal viendo sus propios vehículos
         require_login();
         $user_id = current_user_id();
     }
@@ -21,14 +23,14 @@ if ($method === 'GET') {
     exit;
 }
 
-// POST: acción create / edit / delete
+// POST: crear, editar o eliminar vehículos
 if ($method === 'POST') {
     require_login();
     $action = $_POST['action'] ?? 'create';
     $user_id = current_user_id();
 
     if ($action === 'create') {
-        // solo chofer o admin pueden crear vehículo
+        // Solo conductores y administradores pueden crear vehículos
         if ($_SESSION['role'] !== 'driver' && $_SESSION['role'] !== 'admin') { 
             http_response_code(403); 
             echo 'Solo choferes y administradores pueden crear vehículos'; 

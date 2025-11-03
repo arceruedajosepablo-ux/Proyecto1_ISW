@@ -1,9 +1,13 @@
 <?php
+// Página para crear y editar rides - aquí los conductores publican sus viajes
 require_once __DIR__ . '/private.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
-
+<!-- 
+    Formulario para que los conductores creen nuevos rides o editen los existentes
+    Aquí definen origen, destino, fecha, hora, precio y cuántos espacios ofrecen
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

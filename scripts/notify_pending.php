@@ -1,11 +1,13 @@
 <?php
-// CLI script: php scripts/notify_pending.php [minutes]
+// Script para recordar a los conductores sobre reservas pendientes
+// Se ejecuta desde línea de comandos: php scripts/notify_pending.php [minutos]
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/send_mail.php';
 
-$minutes = $argv[1] ?? 60; // default 60 minutes
+$minutes = $argv[1] ?? 60; // Por defecto 60 minutos
 $pdo = db_connect();
 
+// Buscar reservas que lleven mucho tiempo pendientes
 $sql = "SELECT r.id AS reservation_id, r.created_at, r.ride_id, rides.user_id AS driver_id, rides.nombre AS ride_name, u.email AS driver_email
         FROM reservations r
         JOIN rides ON r.ride_id = rides.id
@@ -21,6 +23,7 @@ if (!$rows) {
     exit;
 }
 
+// Agrupar las reservas por conductor para mandar un solo email por conductor
 $grouped = [];
 foreach ($rows as $row) {
     $driver = $row['driver_email'];

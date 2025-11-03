@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
+<!-- 
+    Página principal de Licu Rides - aquí es donde los ticos pueden buscar y ver todos los rides disponibles
+    También permite a los usuarios logueados ver sus propias reservas y rides desde la página principal
+    Todo bien bonito y organizado para que sea fácil de usar
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,7 +93,8 @@
         </div>
 
         <script>
-            // Variables globales para el estado
+            // Variables globales para manejar todo el estado de la página
+            // Aquí guardamos los rides y cómo los queremos ordenar
             let currentRides = [];
             let sortField = 'fecha';
             let sortOrder = 'asc';

@@ -1,6 +1,9 @@
 <?php
+// Página para gestionar vehículos - solo para conductores y administradores
 require_once __DIR__ . '/private.php';
-// Solo conductores pueden gestionar vehículos y administradores
+
+// Solo conductores y admins pueden manejar vehículos
+// Los pasajeros no tienen vehículos, obvio
 if ($_SESSION['role'] !== 'driver' && $_SESSION['role'] !== 'admin') {
     header('Location: dashboard.php');
     exit();
@@ -8,6 +11,10 @@ if ($_SESSION['role'] !== 'driver' && $_SESSION['role'] !== 'admin') {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+<!-- 
+    Aquí los conductores pueden agregar, editar y eliminar sus vehículos
+    Necesitan registrar al menos un vehículo para poder crear rides
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

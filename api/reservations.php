@@ -1,11 +1,13 @@
 <?php
+// API para manejar reservaciones - solicitar, aceptar, rechazar, cancelar
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/../scripts/send_mail.php';
 
 $pdo = db_connect();
 $method = $_SERVER['REQUEST_METHOD'];
 
-// List reservations for current user (passenger sees their, driver sees ones for their rides)
+// GET: obtener reservaciones del usuario actual
+// Los pasajeros ven sus reservas, los conductores ven solicitudes para sus rides
 if ($method === 'GET') {
     require_login();
     header('Content-Type: application/json');
@@ -14,7 +16,7 @@ if ($method === 'GET') {
         $user_id = current_user_id();
         
     if ($_SESSION['role'] === 'driver' || $_SESSION['role'] === 'admin') {
-            // Los conductores ven las reservas de sus rides
+            // Los conductores ven todas las solicitudes de reserva para sus rides
             $stmt = $pdo->prepare("
                 SELECT 
                     res.*,

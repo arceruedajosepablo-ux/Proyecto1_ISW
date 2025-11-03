@@ -1,11 +1,12 @@
 <?php
+// API para manejar datos del usuario actual - ver perfil y actualizarlo
 require_once __DIR__ . '/auth.php';
 
 $pdo = db_connect();
 $method = $_SERVER['REQUEST_METHOD'];
 
+// GET: obtener datos del usuario actual
 if ($method === 'GET') {
-    // Return current user's public profile
     require_login();
     $user_id = current_user_id();
     $stmt = $pdo->prepare('SELECT id, role, nombre, apellido, cedula, fecha_nacimiento, email, telefono, foto, status, created_at FROM users WHERE id = ?');
@@ -16,12 +17,14 @@ if ($method === 'GET') {
     exit;
 }
 
+// POST: actualizar datos del usuario
 if ($method === 'POST') {
     require_login();
     $action = $_POST['action'] ?? 'update';
     $user_id = current_user_id();
 
     if ($action === 'update') {
+        // Obtener los nuevos datos del formulario
         $nombre = $_POST['nombre'] ?? '';
         $apellido = $_POST['apellido'] ?? '';
         $cedula = $_POST['cedula'] ?? '';

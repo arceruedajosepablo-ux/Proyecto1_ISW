@@ -1,9 +1,14 @@
 <?php
+// Dashboard principal - aquí los usuarios manejan sus rides y reservas
+// Solo pueden entrar usuarios logueados por el private.php
 require_once __DIR__ . '/private.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
-
+<!-- 
+    Esta es la página principal después de loguearse
+    Aquí cada usuario puede ver y manejar sus rides o reservas según su rol
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

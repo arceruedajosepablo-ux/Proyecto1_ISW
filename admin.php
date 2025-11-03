@@ -1,6 +1,8 @@
 <?php
+// Página de administración - solo para los jefes del sistema
 require_once __DIR__ . '/private.php';
-// Solo administradores
+
+// Verificar que sea administrador - si no, que se vaya al dashboard normal
 if ($_SESSION['role'] !== 'admin') {
     header('Location: dashboard.php');
     exit();
@@ -8,6 +10,11 @@ if ($_SESSION['role'] !== 'admin') {
 ?>
 <!DOCTYPE html>
 <html lang="es">
+<!-- 
+    Panel de administración donde se pueden gestionar todos los usuarios
+    Crear nuevos admins, activar/desactivar usuarios, etc.
+    Solo los administradores pueden ver esta página
+-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

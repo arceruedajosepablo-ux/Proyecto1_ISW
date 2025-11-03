@@ -1,13 +1,15 @@
 <?php
+// Script para enviar correos usando PHPMailer
+// Se usa para activación de cuentas y notificaciones del sistema
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/smtp_config.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// First, let's check for PHPMailer
+// Verificar que PHPMailer esté instalado
 if (!file_exists(__DIR__ . '/../vendor/phpmailer/phpmailer')) {
-    // Create composer.json if it doesn't exist
+    // Crear composer.json si no existe
     if (!file_exists(__DIR__ . '/../composer.json')) {
         file_put_contents(__DIR__ . '/../composer.json', json_encode([
             'require' => [
@@ -16,14 +18,15 @@ if (!file_exists(__DIR__ . '/../vendor/phpmailer/phpmailer')) {
         ], JSON_PRETTY_PRINT));
     }
     
-    // Check if composer is installed and install dependencies
+    // Verificar que composer esté instalado
     if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
-        echo "Please run 'composer install' in the project root directory to install dependencies.\n";
+        echo "Hay que ejecutar 'composer install' en la carpeta del proyecto para instalar las dependencias.\n";
     }
 }
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// Función principal para enviar correos
 function send_mail($to, $subject, $body, $isHTML = true) {
     try {
         error_log("Iniciando envío de correo a: " . $to);

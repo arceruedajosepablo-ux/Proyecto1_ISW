@@ -1,13 +1,16 @@
 <?php
+// API para registro de nuevos usuarios - crea cuenta y envía email de activación
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../scripts/send_mail.php';
 
+// Solo acepta peticiones POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo 'Method not allowed';
+    echo 'Solo acepto POST';
     exit;
 }
 
+// Recoger todos los datos del formulario
 $role = isset($_POST['role']) && in_array($_POST['role'], ['driver','passenger']) ? $_POST['role'] : 'passenger';
 $nombre = $_POST['nombre'] ?? '';
 $apellido = $_POST['apellido'] ?? '';
@@ -18,11 +21,12 @@ $telefono = $_POST['telefono'] ?? '';
 $password = $_POST['password'] ?? '';
 $password2 = $_POST['password2'] ?? '';
 
+// Validaciones básicas - nada complicado
 if (empty($email) || empty($password) || $password !== $password2) {
-    die('Datos inválidos o contraseñas no coinciden');
+    die('Faltan datos o las contraseñas no coinciden');
 }
 
-// Manejar foto
+// Procesar la foto de perfil si la subieron
 $foto_path = null;
 if (!empty($_FILES['foto']['tmp_name'])) {
     $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
@@ -33,14 +37,16 @@ if (!empty($_FILES['foto']['tmp_name'])) {
 
 $pdo = db_connect();
 
-// Verificar email único
+// Verificar que el email no esté ya usado
 $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
 $stmt->execute([$email]);
 if ($stmt->fetch()) {
-    die('El correo ya está registrado');
+    die('Ese correo ya está registrado, usá otro');
 }
 
+// Hashear la contraseña para seguridad
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
+// Generar token para activar la cuenta por email
 $activation_token = bin2hex(random_bytes(16));
 
 $insert = $pdo->prepare('INSERT INTO users (role, nombre, apellido, cedula, fecha_nacimiento, email, telefono, foto, password, activation_token, status) VALUES (?,?,?,?,?,?,?,?,?,?,?)');

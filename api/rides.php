@@ -1,18 +1,20 @@
 <?php
+// API para manejar rides - crear, listar, editar y eliminar viajes
 require_once __DIR__ . '/auth.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = db_connect();
 
-// Public listing for index page: upcoming rides ordered by date+time
+// Listado público de rides para la página principal
+// Cualquiera puede ver esto, no necesita estar logueado
 if ($method === 'GET' && isset($_GET['public']) && $_GET['public'] == '1') {
     header('Content-Type: application/json');
 
     try {
-        // Optional filters and sorting
+        // Filtros opcionales para buscar rides específicos
         $origen = $_GET['origen'] ?? null;
         $destino = $_GET['destino'] ?? null;
-        $sort_by = $_GET['sort_by'] ?? 'fecha'; // fecha|origen|destino
+        $sort_by = $_GET['sort_by'] ?? 'fecha'; // Cómo ordenar los resultados
         $order = (isset($_GET['order']) && strtolower($_GET['order']) === 'desc') ? 'DESC' : 'ASC';
 
         // Validar campos de ordenamiento permitidos

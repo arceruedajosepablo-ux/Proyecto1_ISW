@@ -1,18 +1,19 @@
 <?php
+// API de administración - solo para usuarios administradores
 require_once __DIR__ . '/auth.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 $pdo = db_connect();
 
-// Verificar que es admin
+// Verificar que el usuario sea administrador
 require_login();
 if ($_SESSION['role'] !== 'admin') {
     http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Acceso denegado']);
+    echo json_encode(['success' => false, 'error' => 'Solo los administradores pueden usar esto']);
     exit;
 }
 
-// GET: listar usuarios
+// GET: obtener lista de todos los usuarios del sistema
 if ($method === 'GET') {
     $sql = "SELECT id, email, nombre, apellido, role, status, created_at, telefono 
             FROM users 
@@ -24,11 +25,12 @@ if ($method === 'GET') {
     exit;
 }
 
-// POST: crear admin o actualizar estado de usuario
+// POST: crear nuevos administradores o cambiar estado de usuarios
 if ($method === 'POST') {
     $action = $_POST['action'] ?? '';
     
     if ($action === 'create_admin') {
+        // Crear un nuevo administrador
         $email = $_POST['email'] ?? '';
         $nombre = $_POST['nombre'] ?? '';
         $apellido = $_POST['apellido'] ?? '';
