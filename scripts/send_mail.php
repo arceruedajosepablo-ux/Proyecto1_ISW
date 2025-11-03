@@ -31,8 +31,8 @@ function send_mail($to, $subject, $body, $isHTML = true) {
         
         $mail = new PHPMailer(true);
         
-        // Habilitar debug máximo
-        $mail->SMTPDebug = 3; // Debug más detallado
+        // debugging
+        $mail->SMTPDebug = 3; 
         $mail->Debugoutput = function($str, $level) {
             error_log("DEBUG SMTP [$level]: $str");
         };
