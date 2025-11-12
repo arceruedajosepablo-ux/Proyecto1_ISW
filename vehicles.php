@@ -165,6 +165,54 @@ if ($_SESSION['role'] !== 'driver' && $_SESSION['role'] !== 'admin') {
             }
         }
 
+         async function editVehicle(id) {
+            try {
+                // Obtener datos del vehículo
+                const res = await fetch(`./api/vehicles.php?id=${id}`);
+                if (!res.ok) throw new Error('Error obteniendo datos del vehículo');
+                const vehicles = await res.json();
+                
+                // Buscar el vehículo específico en la lista
+                const vehicle = vehicles.find(v => v.id == id);
+                if (!vehicle) {
+                    throw new Error('Vehículo no encontrado');
+                }
+                
+                // Llenar el formulario con los datos existentes
+                document.getElementById('placa').value = vehicle.placa;
+                document.getElementById('marca').value = vehicle.marca;
+                document.getElementById('modelo').value = vehicle.modelo;
+                document.getElementById('anio').value = vehicle.anio;
+                document.getElementById('color').value = vehicle.color;
+                document.getElementById('capacidad').value = vehicle.capacidad;
+                
+                // Cambiar la acción del formulario a editar
+                const actionInput = document.querySelector('input[name="action"]');
+                actionInput.value = 'edit';
+                
+                // Agregar el ID del vehículo al formulario
+                let idInput = document.querySelector('input[name="id"]');
+                if (!idInput) {
+                    idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'id';
+                    document.getElementById('addVehicleForm').appendChild(idInput);
+                }
+                idInput.value = id;
+                
+                // Cambiar el texto del botón
+                const submitButton = document.querySelector('.form-actions .save');
+                submitButton.textContent = 'Actualizar Vehículo';
+                
+                // Mostrar el formulario
+                document.getElementById('vehicleForm').style.display = 'block';
+                
+            } catch (err) {
+                console.error(err);
+                alert('Error cargando datos del vehículo');
+            }
+        }
+
         document.getElementById('addVehicleForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             try {
