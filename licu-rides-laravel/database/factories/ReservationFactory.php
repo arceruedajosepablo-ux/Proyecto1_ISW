@@ -17,7 +17,10 @@ class ReservationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'ride_id' => \App\Models\Ride::factory(),
+            'passenger_id' => \App\Models\User::factory(),
+            'seats' => fake()->numberBetween(1, 2),
+            'status' => 'pending',
         ];
     }
 }
