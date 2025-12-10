@@ -13,8 +13,6 @@ class AutenticacionTest extends TestCase
 
     /**
      * Prueba que un usuario puede registrarse exitosamente.
-     * NOTA: Esta ruta utiliza la API PHP antigua en /api/register.php
-     * Para testing en Laravel, se puede usar User::factory() directamente
      */
     public function test_usuario_puede_registrarse(): void
     {
