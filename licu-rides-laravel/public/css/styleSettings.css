@@ -1,0 +1,173 @@
+/* Variables CSS */
+:root {
+    --primary-color: #007bff;
+    --primary-dark: #0056b3;
+    --background-color: #e0f7fa;
+    --border-color: #ddd;
+    --text-color: #333;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+}
+
+/* Reset básico */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 40rem;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+/* Encabezado */
+header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.logo {
+    width: 8rem;
+    height: auto;
+    margin-right: 1rem;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+/* Formulario */
+.settings-form {
+    padding: 1rem 0;
+}
+
+.settings-form h2 {
+    font-size: 1.25rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Foto de perfil */
+.current-photo {
+    margin-top: 0.5rem;
+    max-width: 200px;
+}
+
+.profile-photo {
+    width: 100%;
+    height: auto;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color);
+}
+
+/* Sección de contraseña */
+.password-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.password-section h3 {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+/* Botones */
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: #e9ecef;
+}
+
+/* Media Queries */
+@media (max-width: 31.25rem) {
+    .container {
+        padding: 1rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%;
+    }
+}
